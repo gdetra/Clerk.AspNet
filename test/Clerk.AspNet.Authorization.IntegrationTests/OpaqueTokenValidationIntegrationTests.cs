@@ -8,8 +8,8 @@ namespace Clerk.AspNet.Authorization.IntegrationTests;
 /// </summary>
 public class OpaqueTokenValidationIntegrationTests : IAsyncLifetime
 {
-    private TestApiFactory _factory;
-    private HttpClient _client;
+    private TestApiFactory _factory = null!;
+    private HttpClient _client = null!;
 
     public async Task InitializeAsync()
     {

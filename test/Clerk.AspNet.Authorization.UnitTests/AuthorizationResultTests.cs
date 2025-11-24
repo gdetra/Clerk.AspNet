@@ -37,7 +37,7 @@ public class AuthorizationResultTests
 
         // Assert
         Assert.False(result.IsAuthorized);
-        Assert.Null(result.UserRoles);
+        Assert.Equivalent(new List<string>(), result.UserRoles);
         Assert.Null(result.ErrorMessage);
         Assert.Null(result.AuthorizedRole);
     }

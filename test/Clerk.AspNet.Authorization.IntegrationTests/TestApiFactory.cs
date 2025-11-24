@@ -2,6 +2,8 @@ using Clerk.AspNet.Authorization.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using WireMock.Server;
 
@@ -11,7 +13,7 @@ namespace Clerk.AspNet.Authorization.IntegrationTests;
 /// Factory for creating a test web API with mocked Clerk Backend API.
 /// Uses WebApplicationFactory to set up a minimal API for testing.
 /// </summary>
-public class TestApiFactory : WebApplicationFactory<object>
+public class TestApiFactory : WebApplicationFactory<Program>
 {
     private readonly WireMockServer _mockClerkServer;
     public string MockClerkBaseUrl => _mockClerkServer.Urls.First();
@@ -26,58 +28,77 @@ public class TestApiFactory : WebApplicationFactory<object>
     /// </summary>
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
+        // Set the content root to the test project directory
+        builder.UseContentRoot(Directory.GetCurrentDirectory());
+
+        builder.ConfigureAppConfiguration((context, config) =>
+        {
+            // Add in-memory configuration for testing
+            config.AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                { "Clerk:SecretKey", "test_secret_key" },
+                { "Clerk:ApiUrl", MockClerkBaseUrl }
+            });
+        });
+
         builder.ConfigureServices(services =>
         {
+            // Add logging
+            services.AddLogging();
+
             // Add Clerk role authorization
             services.AddClerkRoleAuthorization();
         });
 
         builder.Configure(app =>
         {
+            app.UseRouting();
+
             // Add the opaque token validation middleware
             app.UseOpaqueTokenValidation();
 
-            // Map test endpoints
-            MapTestEndpoints(app);
+            app.UseEndpoints(endpoints =>
+            {
+                // Map test endpoints
+                MapTestEndpoints(endpoints);
+            });
         });
     }
 
     /// <summary>
     /// Maps test endpoints for various authorization scenarios.
     /// </summary>
-    private void MapTestEndpoints(IApplicationBuilder app)
+    private void MapTestEndpoints(IEndpointRouteBuilder endpoints)
     {
-        var webApp = app as WebApplication ?? throw new InvalidOperationException("Application is not a WebApplication");
-
         // Public endpoint - no authorization required
-        webApp.MapGet("/public", () => new { message = "Public endpoint" })
+        endpoints.MapGet("/public", () => new { message = "Public endpoint" })
             .WithName("PublicEndpoint");
 
         // Protected endpoint - token validation required
-        webApp.MapGet("/protected", () => new { message = "Protected endpoint" })
+        endpoints.MapGet("/protected", () => new { message = "Protected endpoint" })
             .RequireOpaqueTokenAuthorization()
             .WithName("ProtectedEndpoint");
 
         // Admin endpoint - requires single role
-        webApp.MapGet("/admin", () => new { message = "Admin endpoint" })
+        endpoints.MapGet("/admin", () => new { message = "Admin endpoint" })
             .RequireRole()
             .Single("org:admin")
             .WithName("AdminEndpoint");
 
         // Manager endpoint - requires any role
-        webApp.MapGet("/manager", () => new { message = "Manager endpoint" })
+        endpoints.MapGet("/manager", () => new { message = "Manager endpoint" })
             .RequireRole()
             .OneOf("org:admin", "org:manager")
             .WithName("ManagerEndpoint");
 
         // Billing endpoint - requires all roles
-        webApp.MapGet("/billing", () => new { message = "Billing endpoint" })
+        endpoints.MapGet("/billing", () => new { message = "Billing endpoint" })
             .RequireRole()
             .AllOf("org:admin", "org:billing")
             .WithName("BillingEndpoint");
 
         // Health check endpoint
-        webApp.MapGet("/health", () => new { status = "ok" })
+        endpoints.MapGet("/health", () => new { status = "ok" })
             .WithName("HealthCheck");
     }
 

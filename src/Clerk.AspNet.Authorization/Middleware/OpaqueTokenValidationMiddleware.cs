@@ -26,33 +26,33 @@ public class OpaqueTokenValidationMiddleware
     private readonly RequestDelegate _next;
     private readonly string? _clerkSecretKey;
     private readonly string? _clerkAuthority;
-    private readonly IClerkRoleAuthorizationService _authorizationService;
+    private readonly string? _clerkApiUrl;
     private readonly ILogger<OpaqueTokenValidationMiddleware> _logger;
 
     /// <summary>
     /// Initializes a new instance of the OpaqueTokenValidationMiddleware.
     /// </summary>
     /// <param name="next">The next middleware in the pipeline.</param>
-    /// <param name="configuration">Configuration containing Clerk:SecretKey and optional Authentication:Jwt:Authority.</param>
-    /// <param name="authorizationService">Service for role-based authorization checks.</param>
+    /// <param name="configuration">Configuration containing Clerk:SecretKey, optional Clerk:ApiUrl, and optional Authentication:Jwt:Authority.</param>
     /// <param name="logger">Logger for diagnostic output.</param>
     public OpaqueTokenValidationMiddleware(
         RequestDelegate next,
         IConfiguration configuration,
-        IClerkRoleAuthorizationService authorizationService,
         ILogger<OpaqueTokenValidationMiddleware> logger)
     {
         _next = next;
         _clerkSecretKey = configuration["Clerk:SecretKey"];
         _clerkAuthority = configuration["Authentication:Jwt:Authority"];
-        _authorizationService = authorizationService;
+        _clerkApiUrl = configuration["Clerk:ApiUrl"];
         _logger = logger;
     }
 
     /// <summary>
     /// Invokes the middleware to validate opaque tokens and handle authorization.
     /// </summary>
-    public async Task InvokeAsync(HttpContext context)
+    /// <param name="context">The HTTP context for the current request.</param>
+    /// <param name="authorizationService">Scoped service for role-based authorization checks (injected per request).</param>
+    public async Task InvokeAsync(HttpContext context, IClerkRoleAuthorizationService authorizationService)
     {
         // Check if the current endpoint requires opaque token authorization
         var endpoint = context.GetEndpoint();
@@ -96,17 +96,17 @@ public class OpaqueTokenValidationMiddleware
                                 // Delegate role authorization to service
                                 if (requiredRole != null)
                                 {
-                                    authResult = await _authorizationService.ValidateSingleRoleAsync(
+                                    authResult = await authorizationService.ValidateSingleRoleAsync(
                                         validationResult.UserId!, requiredRole.Role);
                                 }
                                 else if (requiredAnyRole != null)
                                 {
-                                    authResult = await _authorizationService.ValidateAnyRoleAsync(
+                                    authResult = await authorizationService.ValidateAnyRoleAsync(
                                         validationResult.UserId!, requiredAnyRole.Roles);
                                 }
                                 else if (requiredAllRoles != null)
                                 {
-                                    authResult = await _authorizationService.ValidateAllRolesAsync(
+                                    authResult = await authorizationService.ValidateAllRolesAsync(
                                         validationResult.UserId!, requiredAllRoles.Roles);
                                 }
 
@@ -193,10 +193,12 @@ public class OpaqueTokenValidationMiddleware
         {
             _logger.LogInformation($"[Clerk API] Validating opaque token with Clerk SDK");
 
-            // Create Clerk API client with secret key
-            var client = new ClerkBackendApi(bearerAuth: _clerkSecretKey);
+            // Create Clerk API client with secret key and optional custom server URL
+            var client = string.IsNullOrEmpty(_clerkApiUrl)
+                ? new ClerkBackendApi(bearerAuth: _clerkSecretKey)
+                : new ClerkBackendApi(serverUrl: _clerkApiUrl, bearerAuth: _clerkSecretKey);
 
-            _logger.LogInformation($"[Clerk API] Using Clerk Backend API");
+            _logger.LogInformation($"[Clerk API] Using Clerk Backend API{(string.IsNullOrEmpty(_clerkApiUrl) ? "" : $" at {_clerkApiUrl}")}");
 
             // Create request body - use AccessToken property name
             var requestBody = new VerifyOAuthAccessTokenRequestBody

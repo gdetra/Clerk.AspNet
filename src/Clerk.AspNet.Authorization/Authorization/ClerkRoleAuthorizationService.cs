@@ -81,16 +81,18 @@ public class AuthorizationResult
 public class ClerkRoleAuthorizationService : IClerkRoleAuthorizationService
 {
     private readonly string? _clerkSecretKey;
+    private readonly string? _clerkApiUrl;
     private readonly ILogger<ClerkRoleAuthorizationService> _logger;
 
     /// <summary>
     /// Initializes a new instance of the ClerkRoleAuthorizationService.
     /// </summary>
-    /// <param name="configuration">Configuration object containing Clerk:SecretKey setting.</param>
+    /// <param name="configuration">Configuration object containing Clerk:SecretKey and optional Clerk:ApiUrl settings.</param>
     /// <param name="logger">Logger for diagnostic output.</param>
     public ClerkRoleAuthorizationService(IConfiguration configuration, ILogger<ClerkRoleAuthorizationService> logger)
     {
         _clerkSecretKey = configuration["Clerk:SecretKey"];
+        _clerkApiUrl = configuration["Clerk:ApiUrl"];
         _logger = logger;
     }
 
@@ -203,7 +205,11 @@ public class ClerkRoleAuthorizationService : IClerkRoleAuthorizationService
                 return roles;
             }
 
-            var client = new ClerkBackendApi(bearerAuth: _clerkSecretKey);
+            // Create Clerk API client with secret key and optional custom server URL
+            var client = string.IsNullOrEmpty(_clerkApiUrl)
+                ? new ClerkBackendApi(bearerAuth: _clerkSecretKey)
+                : new ClerkBackendApi(serverUrl: _clerkApiUrl, bearerAuth: _clerkSecretKey);
+
             var response = await client.Users.GetOrganizationMembershipsAsync(userId);
             var memberships = response?.OrganizationMemberships?.Data;
 
