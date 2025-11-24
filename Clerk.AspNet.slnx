@@ -1,3 +1,16 @@
 <Solution>
-  <Project Path="Clerk.AspNet.Authorization/Clerk.AspNet.Authorization.csproj" />
+  <Folder Name="/Solution Items/">
+    <File Path="Directory.Packages.props" />
+    <File Path=".gitignore" />
+    <File Path="README.md" />
+    <File Path="DEVELOPMENT.md" />
+    <File Path="PUBLISHING.md" />
+  </Folder>
+  <Folder Name="/test/">
+    <Project Path="test\Clerk.AspNet.Authorization.UnitTests\Clerk.AspNet.Authorization.UnitTests.csproj" />
+    <Project Path="test\Clerk.AspNet.Authorization.IntegrationTests\Clerk.AspNet.Authorization.IntegrationTests.csproj" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/Clerk.AspNet.Authorization/Clerk.AspNet.Authorization.csproj" />
+  </Folder>
 </Solution>

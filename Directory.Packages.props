@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Clerk Integration -->
+    <PackageVersion Include="Clerk.BackendAPI" Version="0.14.0" />
+
+    <!-- ASP.NET Core - Compatible with .NET 8.0 and 10.0 -->
+    <PackageVersion Include="Microsoft.AspNetCore.App" Version="8.0.0" />
+    <PackageVersion Include="Microsoft.AspNetCore.Http" Version="2.3.0" />
+    <PackageVersion Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.0" />
+    <PackageVersion Include="Microsoft.AspNetCore.Routing" Version="2.3.0" />
+    <PackageVersion Include="Microsoft.AspNetCore.Authentication" Version="2.3.0" />
+    <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="10.0.0" />
+
+    <!-- Extensions & Configuration -->
+    <PackageVersion Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration" Version="10.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="10.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Logging" Version="10.0.0" />
+
+    <!-- Testing -->
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageVersion Include="xunit" Version="2.9.3" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.4" />
+    <PackageVersion Include="coverlet.collector" Version="6.0.4" />
+    <PackageVersion Include="Moq" Version="4.20.70" />
+    <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.0" />
+    <PackageVersion Include="WireMock.Net" Version="1.6.46" />
+  </ItemGroup>
+
+</Project>

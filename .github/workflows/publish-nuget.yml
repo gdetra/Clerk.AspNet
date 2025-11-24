@@ -1,0 +1,46 @@
+name: Publish NuGet Package
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '10.0.x'
+
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: Build
+      run: dotnet build --no-restore --configuration Release
+
+    - name: Run tests
+      run: dotnet test --no-build --verbosity normal --configuration Release
+
+    - name: Extract version from tag
+      id: tag_version
+      run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+    - name: Pack NuGet package
+      run: dotnet pack src/Clerk.AspNet.Authorization/Clerk.AspNet.Authorization.csproj --configuration Release --output nupkg --no-build -p:Version=${{ steps.tag_version.outputs.VERSION }}
+
+    - name: Publish to NuGet
+      run: dotnet nuget push "nupkg/**/*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: nupkg/**/*
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

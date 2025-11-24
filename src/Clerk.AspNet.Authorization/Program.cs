@@ -1,0 +1,2 @@
+﻿// Clerk.AspNet.Authorization - A comprehensive ASP.NET Core library for Clerk authentication and authorization
+// This is a library package - see Clerk.AspNet.Authorization.csproj for package configuration

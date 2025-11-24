@@ -1,0 +1,40 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseRazorSourceGenerator>false</UseRazorSourceGenerator>
+
+    <!-- NuGet Package Information -->
+    <PackageId>Clerk.AspNet.Authorization</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>Clerk Integration Contributors</Authors>
+    <Title>Clerk Authorization for ASP.NET Core</Title>
+    <Description>A fluent role-based authorization library for ASP.NET Core Minimal APIs using Clerk as the identity provider. Provides opaque token validation middleware, testable authorization service, and an expressive fluent API for role-based access control.</Description>
+    <PackageProjectUrl>https://github.com/yourusername/Clerk.AspNet</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/yourusername/Clerk.AspNet</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageTags>clerk;authorization;rbac;role-based-access-control;aspnet-core;minimal-apis;middleware</PackageTags>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Clerk.BackendAPI" />
+    <PackageReference Include="Microsoft.AspNetCore.Http" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" />
+    <PackageReference Include="Microsoft.AspNetCore.Routing" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" Version="8.0.0" />
+  </ItemGroup>
+
+</Project>
