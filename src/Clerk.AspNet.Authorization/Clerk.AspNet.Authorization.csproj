@@ -9,18 +9,32 @@
 
     <!-- NuGet Package Information -->
     <PackageId>Clerk.AspNet.Authorization</PackageId>
-    <Version>1.0.0</Version>
-    <Authors>Clerk Integration Contributors</Authors>
+    <!-- Version is set automatically by semantic-release during build -->
+    <Version>0.0.0-dev</Version>
+    <Authors>Gabriele De Trane</Authors>
+    <Company>Gabriele De Trane</Company>
+    <Copyright>Copyright (c) 2025 Gabriele De Trane</Copyright>
     <Title>Clerk Authorization for ASP.NET Core</Title>
-    <Description>A fluent role-based authorization library for ASP.NET Core Minimal APIs using Clerk as the identity provider. Provides opaque token validation middleware, testable authorization service, and an expressive fluent API for role-based access control.</Description>
-    <PackageProjectUrl>https://github.com/yourusername/Clerk.AspNet</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/yourusername/Clerk.AspNet</RepositoryUrl>
+    <Description>A fluent role-based authorization library for ASP.NET Core Minimal APIs using Clerk as the identity provider. Provides opaque token validation middleware, testable authorization service, and an expressive fluent API for role-based access control (.Single(), .OneOf(), .AllOf()). Includes ConfigureAwait(false) for all async operations and CancellationToken support.</Description>
+    <PackageProjectUrl>https://github.com/gdetra/Clerk.AspNet</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/gdetra/Clerk.AspNet</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageTags>clerk;authorization;rbac;role-based-access-control;aspnet-core;minimal-apis;middleware</PackageTags>
+    <PackageTags>clerk;authorization;rbac;role-based-access-control;aspnet-core;minimal-apis;middleware;opaque-token;authentication;identity</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageReleaseNotes>See https://github.com/gdetra/Clerk.AspNet/releases for release notes</PackageReleaseNotes>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+    <Deterministic>true</Deterministic>
+
+    <!-- Package Validation -->
+    <EnablePackageValidation>true</EnablePackageValidation>
+    <EnableStrictModeForCompatibleTfms>true</EnableStrictModeForCompatibleTfms>
+    <EnableStrictModeForCompatibleFrameworksInPackage>true</EnableStrictModeForCompatibleFrameworksInPackage>
   </PropertyGroup>
 
   <ItemGroup>
@@ -35,6 +49,14 @@
 
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="../../README.md" Pack="true" PackagePath="/" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All" />
   </ItemGroup>
 
 </Project>
