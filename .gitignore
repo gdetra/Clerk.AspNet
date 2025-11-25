@@ -482,3 +482,9 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+
+# Node.js dependencies (for semantic-release)
+node_modules/
+
+# semantic-release
+.npmrc

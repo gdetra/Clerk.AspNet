@@ -1,0 +1,24 @@
+{
+  "name": "clerk-aspnet-authorization",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A fluent role-based authorization library for ASP.NET Core Minimal APIs using Clerk",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gdetra/Clerk.AspNet.git"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@commitlint/cli": "^18.4.3",
+    "@commitlint/config-conventional": "^18.4.3",
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/exec": "^6.0.3",
+    "@semantic-release/git": "^10.0.1",
+    "conventional-changelog-conventionalcommits": "^7.0.2",
+    "semantic-release": "^22.0.12"
+  },
+  "scripts": {
+    "commit": "git-cz",
+    "release": "semantic-release"
+  }
+}
