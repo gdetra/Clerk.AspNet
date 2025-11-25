@@ -78,7 +78,7 @@ public class OpaqueTokenValidationMiddleware
                     // Validate opaque token with Clerk API
                     if (!string.IsNullOrEmpty(_clerkSecretKey))
                     {
-                        var validationResult = await ValidateOpaqueTokenWithClerkAsync(token);
+                        var validationResult = await ValidateOpaqueTokenWithClerkAsync(token, context.RequestAborted).ConfigureAwait(false);
 
                         if (validationResult.IsValid)
                         {
@@ -97,23 +97,23 @@ public class OpaqueTokenValidationMiddleware
                                 if (requiredRole != null)
                                 {
                                     authResult = await authorizationService.ValidateSingleRoleAsync(
-                                        validationResult.UserId!, requiredRole.Role);
+                                        validationResult.UserId!, requiredRole.Role, context.RequestAborted).ConfigureAwait(false);
                                 }
                                 else if (requiredAnyRole != null)
                                 {
                                     authResult = await authorizationService.ValidateAnyRoleAsync(
-                                        validationResult.UserId!, requiredAnyRole.Roles);
+                                        validationResult.UserId!, requiredAnyRole.Roles, context.RequestAborted).ConfigureAwait(false);
                                 }
                                 else if (requiredAllRoles != null)
                                 {
                                     authResult = await authorizationService.ValidateAllRolesAsync(
-                                        validationResult.UserId!, requiredAllRoles.Roles);
+                                        validationResult.UserId!, requiredAllRoles.Roles, context.RequestAborted).ConfigureAwait(false);
                                 }
 
                                 if (!authResult.IsAuthorized)
                                 {
                                     context.Response.StatusCode = StatusCodes.Status403Forbidden;
-                                    await context.Response.WriteAsync($"Forbidden: {authResult.ErrorMessage}");
+                                    await context.Response.WriteAsync($"Forbidden: {authResult.ErrorMessage}", context.RequestAborted).ConfigureAwait(false);
                                     return;
                                 }
 
@@ -133,7 +133,7 @@ public class OpaqueTokenValidationMiddleware
                         {
                             _logger.LogWarning($"[Token] ✗ Opaque token validation failed at Clerk API");
                             context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                            await context.Response.WriteAsync("Unauthorized: Invalid token");
+                            await context.Response.WriteAsync("Unauthorized: Invalid token", context.RequestAborted).ConfigureAwait(false);
                             return;
                         }
                     }
@@ -141,7 +141,7 @@ public class OpaqueTokenValidationMiddleware
                     {
                         _logger.LogWarning($"[Token] ⚠️ Opaque token detected but Clerk:SecretKey not configured");
                         context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                        await context.Response.WriteAsync("Unauthorized: Token validation not configured");
+                        await context.Response.WriteAsync("Unauthorized: Token validation not configured", context.RequestAborted).ConfigureAwait(false);
                         return;
                     }
                 }
@@ -165,7 +165,7 @@ public class OpaqueTokenValidationMiddleware
             {
                 _logger.LogError($"[Token] ✗ Error validating token: {ex.Message}");
                 context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                await context.Response.WriteAsync("Unauthorized: Token validation error");
+                await context.Response.WriteAsync("Unauthorized: Token validation error", context.RequestAborted).ConfigureAwait(false);
                 return;
             }
         }
@@ -174,11 +174,11 @@ public class OpaqueTokenValidationMiddleware
             // No token provided but endpoint requires opaque token authorization
             _logger.LogWarning($"[Token] ✗ No token provided for protected endpoint: {context.Request.Path}");
             context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-            await context.Response.WriteAsync("Unauthorized: No token provided");
+            await context.Response.WriteAsync("Unauthorized: No token provided", context.RequestAborted).ConfigureAwait(false);
             return;
         }
 
-        await _next(context);
+        await _next(context).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -186,8 +186,9 @@ public class OpaqueTokenValidationMiddleware
     /// Calls POST /v1/oauth_applications/access_tokens/verify endpoint.
     /// </summary>
     /// <param name="token">The opaque token to validate.</param>
+    /// <param name="cancellationToken">Cancellation token to cancel the operation.</param>
     /// <returns>Validation result containing token status and user ID if valid.</returns>
-    private async Task<TokenValidationResult> ValidateOpaqueTokenWithClerkAsync(string token)
+    private async Task<TokenValidationResult> ValidateOpaqueTokenWithClerkAsync(string token, CancellationToken cancellationToken)
     {
         try
         {
@@ -200,6 +201,9 @@ public class OpaqueTokenValidationMiddleware
 
             _logger.LogInformation($"[Clerk API] Using Clerk Backend API{(string.IsNullOrEmpty(_clerkApiUrl) ? "" : $" at {_clerkApiUrl}")}");
 
+            // Check for cancellation before making expensive API call
+            cancellationToken.ThrowIfCancellationRequested();
+
             // Create request body - use AccessToken property name
             var requestBody = new VerifyOAuthAccessTokenRequestBody
             {
@@ -207,7 +211,7 @@ public class OpaqueTokenValidationMiddleware
             };
 
             // Verify access token using SDK
-            var response = await client.OauthAccessTokens.VerifyAsync(requestBody);
+            var response = await client.OauthAccessTokens.VerifyAsync(requestBody).ConfigureAwait(false);
 
             if (response?.Object != null)
             {

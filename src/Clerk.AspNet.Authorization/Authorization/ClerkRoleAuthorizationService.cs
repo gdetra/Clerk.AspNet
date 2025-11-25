@@ -16,31 +16,35 @@ public interface IClerkRoleAuthorizationService
     /// </summary>
     /// <param name="userId">The Clerk user ID to validate.</param>
     /// <param name="requiredRole">The specific role required (e.g., "org:admin").</param>
+    /// <param name="cancellationToken">Cancellation token to cancel the operation.</param>
     /// <returns>Authorization result indicating whether the user has the required role.</returns>
-    Task<AuthorizationResult> ValidateSingleRoleAsync(string userId, string requiredRole);
+    Task<AuthorizationResult> ValidateSingleRoleAsync(string userId, string requiredRole, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Validates a user has at least one of the specified roles.
     /// </summary>
     /// <param name="userId">The Clerk user ID to validate.</param>
     /// <param name="requiredRoles">Array of roles where user must have at least one.</param>
+    /// <param name="cancellationToken">Cancellation token to cancel the operation.</param>
     /// <returns>Authorization result indicating whether the user has any of the required roles.</returns>
-    Task<AuthorizationResult> ValidateAnyRoleAsync(string userId, string[] requiredRoles);
+    Task<AuthorizationResult> ValidateAnyRoleAsync(string userId, string[] requiredRoles, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Validates a user has all the specified roles.
     /// </summary>
     /// <param name="userId">The Clerk user ID to validate.</param>
     /// <param name="requiredRoles">Array of roles that the user must ALL possess.</param>
+    /// <param name="cancellationToken">Cancellation token to cancel the operation.</param>
     /// <returns>Authorization result indicating whether the user has all required roles.</returns>
-    Task<AuthorizationResult> ValidateAllRolesAsync(string userId, string[] requiredRoles);
+    Task<AuthorizationResult> ValidateAllRolesAsync(string userId, string[] requiredRoles, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Fetches user roles from Clerk organization memberships.
     /// </summary>
     /// <param name="userId">The Clerk user ID to fetch roles for.</param>
+    /// <param name="cancellationToken">Cancellation token to cancel the operation.</param>
     /// <returns>List of role strings the user has across all organization memberships.</returns>
-    Task<List<string>> GetUserRolesAsync(string userId);
+    Task<List<string>> GetUserRolesAsync(string userId, CancellationToken cancellationToken = default);
 }
 
 /// <summary>
@@ -100,11 +104,11 @@ public class ClerkRoleAuthorizationService : IClerkRoleAuthorizationService
     /// Validates user has a specific role using fluent .Single()
     /// User must have exactly the specified role.
     /// </summary>
-    public async Task<AuthorizationResult> ValidateSingleRoleAsync(string userId, string requiredRole)
+    public async Task<AuthorizationResult> ValidateSingleRoleAsync(string userId, string requiredRole, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation($"[Role] Single() - Validating user {userId} has role '{requiredRole}'");
 
-        var userRoles = await GetUserRolesAsync(userId);
+        var userRoles = await GetUserRolesAsync(userId, cancellationToken).ConfigureAwait(false);
         var result = new AuthorizationResult { UserRoles = userRoles };
 
         _logger.LogInformation($"[Role] User roles: {string.Join(", ", userRoles)}");
@@ -127,11 +131,11 @@ public class ClerkRoleAuthorizationService : IClerkRoleAuthorizationService
     /// Validates user has at least one of the specified roles using fluent .OneOf()
     /// User must have at least one of the provided roles.
     /// </summary>
-    public async Task<AuthorizationResult> ValidateAnyRoleAsync(string userId, string[] requiredRoles)
+    public async Task<AuthorizationResult> ValidateAnyRoleAsync(string userId, string[] requiredRoles, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation($"[Role] OneOf() - Validating user {userId} has any of: {string.Join(", ", requiredRoles)}");
 
-        var userRoles = await GetUserRolesAsync(userId);
+        var userRoles = await GetUserRolesAsync(userId, cancellationToken).ConfigureAwait(false);
         var result = new AuthorizationResult { UserRoles = userRoles };
 
         _logger.LogInformation($"[Role] User roles: {string.Join(", ", userRoles)}");
@@ -156,11 +160,11 @@ public class ClerkRoleAuthorizationService : IClerkRoleAuthorizationService
     /// Validates user has all the specified roles using fluent .AllOf()
     /// User must have ALL the provided roles.
     /// </summary>
-    public async Task<AuthorizationResult> ValidateAllRolesAsync(string userId, string[] requiredRoles)
+    public async Task<AuthorizationResult> ValidateAllRolesAsync(string userId, string[] requiredRoles, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation($"[Role] AllOf() - Validating user {userId} has all of: {string.Join(", ", requiredRoles)}");
 
-        var userRoles = await GetUserRolesAsync(userId);
+        var userRoles = await GetUserRolesAsync(userId, cancellationToken).ConfigureAwait(false);
         var result = new AuthorizationResult { UserRoles = userRoles };
 
         _logger.LogInformation($"[Role] User roles: {string.Join(", ", userRoles)}");
@@ -185,7 +189,7 @@ public class ClerkRoleAuthorizationService : IClerkRoleAuthorizationService
     /// Fetches user roles from Clerk organization memberships.
     /// Calls the Clerk Backend API to retrieve all organization memberships for a user.
     /// </summary>
-    public async Task<List<string>> GetUserRolesAsync(string userId)
+    public async Task<List<string>> GetUserRolesAsync(string userId, CancellationToken cancellationToken = default)
     {
         var roles = new List<string>();
 
@@ -205,12 +209,15 @@ public class ClerkRoleAuthorizationService : IClerkRoleAuthorizationService
                 return roles;
             }
 
+            // Check for cancellation before making expensive API call
+            cancellationToken.ThrowIfCancellationRequested();
+
             // Create Clerk API client with secret key and optional custom server URL
             var client = string.IsNullOrEmpty(_clerkApiUrl)
                 ? new ClerkBackendApi(bearerAuth: _clerkSecretKey)
                 : new ClerkBackendApi(serverUrl: _clerkApiUrl, bearerAuth: _clerkSecretKey);
 
-            var response = await client.Users.GetOrganizationMembershipsAsync(userId);
+            var response = await client.Users.GetOrganizationMembershipsAsync(userId).ConfigureAwait(false);
             var memberships = response?.OrganizationMemberships?.Data;
 
             if (memberships != null && memberships.Count > 0)
