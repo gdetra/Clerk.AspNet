@@ -109,7 +109,7 @@ public class TestApiFactory : WebApplicationFactory<Program>
     {
         _mockClerkServer.Given(WireMock.RequestBuilders.Request
             .Create()
-            .WithPath("/v1/oauth_applications/access_tokens/verify")
+            .WithPath("/oauth_applications/access_tokens/verify")
             .UsingPost())
             .RespondWith(WireMock.ResponseBuilders.Response
             .Create()
@@ -117,13 +117,15 @@ public class TestApiFactory : WebApplicationFactory<Program>
                 .WithHeader("Content-Type", "application/json")
                 .WithBody($$"""
                 {
-                    "object": "oauth_access_token",
+                    "object": "clerk_idp_oauth_access_token",
                     "id": "oat_test_token",
+                    "client_id": "test_client_id",
                     "subject": "{{userId}}",
-                    "issued_at": {{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}},
-                    "expires_at": {{(DateTimeOffset.UtcNow.AddHours(1)).ToUnixTimeSeconds()}},
+                    "scopes": ["profile", "email"],
                     "revoked": false,
-                    "expired": false
+                    "expired": false,
+                    "created_at": {{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}},
+                    "updated_at": {{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}}
                 }
                 """));
     }
@@ -135,7 +137,7 @@ public class TestApiFactory : WebApplicationFactory<Program>
     {
         _mockClerkServer.Given(WireMock.RequestBuilders.Request
             .Create()
-            .WithPath("/v1/oauth_applications/access_tokens/verify")
+            .WithPath("/oauth_applications/access_tokens/verify")
             .UsingPost())
             .RespondWith(WireMock.ResponseBuilders.Response
             .Create()
@@ -159,7 +161,7 @@ public class TestApiFactory : WebApplicationFactory<Program>
     {
         _mockClerkServer.Given(WireMock.RequestBuilders.Request
             .Create()
-            .WithPath("/v1/oauth_applications/access_tokens/verify")
+            .WithPath("/oauth_applications/access_tokens/verify")
             .UsingPost())
             .RespondWith(WireMock.ResponseBuilders.Response
             .Create()
@@ -167,13 +169,15 @@ public class TestApiFactory : WebApplicationFactory<Program>
                 .WithHeader("Content-Type", "application/json")
                 .WithBody($$"""
                 {
-                    "object": "oauth_access_token",
+                    "object": "clerk_idp_oauth_access_token",
                     "id": "oat_revoked_token",
+                    "client_id": "test_client_id",
                     "subject": "{{userId}}",
-                    "issued_at": {{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}},
-                    "expires_at": {{(DateTimeOffset.UtcNow.AddHours(1)).ToUnixTimeSeconds()}},
+                    "scopes": ["profile", "email"],
                     "revoked": true,
-                    "expired": false
+                    "expired": false,
+                    "created_at": {{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}},
+                    "updated_at": {{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}}
                 }
                 """));
     }
@@ -185,7 +189,7 @@ public class TestApiFactory : WebApplicationFactory<Program>
     {
         _mockClerkServer.Given(WireMock.RequestBuilders.Request
             .Create()
-            .WithPath("/v1/oauth_applications/access_tokens/verify")
+            .WithPath("/oauth_applications/access_tokens/verify")
             .UsingPost())
             .RespondWith(WireMock.ResponseBuilders.Response
             .Create()
@@ -193,13 +197,15 @@ public class TestApiFactory : WebApplicationFactory<Program>
                 .WithHeader("Content-Type", "application/json")
                 .WithBody($$"""
                 {
-                    "object": "oauth_access_token",
+                    "object": "clerk_idp_oauth_access_token",
                     "id": "oat_expired_token",
+                    "client_id": "test_client_id",
                     "subject": "{{userId}}",
-                    "issued_at": {{(DateTimeOffset.UtcNow.AddHours(-2)).ToUnixTimeSeconds()}},
-                    "expires_at": {{(DateTimeOffset.UtcNow.AddMinutes(-5)).ToUnixTimeSeconds()}},
+                    "scopes": ["profile", "email"],
                     "revoked": false,
-                    "expired": true
+                    "expired": true,
+                    "created_at": {{(DateTimeOffset.UtcNow.AddHours(-2)).ToUnixTimeSeconds()}},
+                    "updated_at": {{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}}
                 }
                 """));
     }
@@ -222,7 +228,7 @@ public class TestApiFactory : WebApplicationFactory<Program>
 
         _mockClerkServer.Given(WireMock.RequestBuilders.Request
             .Create()
-            .WithPath($"/v1/users/{userId}/organization_memberships")
+            .WithPath($"/users/{userId}/organization_memberships")
             .UsingGet())
             .RespondWith(WireMock.ResponseBuilders.Response
             .Create()
