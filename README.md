@@ -194,23 +194,6 @@ The library consists of two main components:
 - Validates role requirements
 - Fully testable and mockable via `IClerkRoleAuthorizationService`
 
-## Testing
-
-The library is designed for testability:
-
-```csharp
-// Mock the authorization service
-var mockAuthService = new Mock<IClerkRoleAuthorizationService>();
-mockAuthService
-    .Setup(x => x.ValidateSingleRoleAsync("user_123", "org:admin", It.IsAny<CancellationToken>()))
-    .ReturnsAsync(new AuthorizationResult { IsAuthorized = true });
-
-// Use in your tests
-services.AddSingleton(mockAuthService.Object);
-```
-
-See the [integration tests](test/Clerk.AspNet.Authorization.IntegrationTests) for comprehensive examples.
-
 ## Configuration Options
 
 | Setting | Description | Required | Default |
