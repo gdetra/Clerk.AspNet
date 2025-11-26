@@ -3,6 +3,10 @@
     <File Path="Directory.Packages.props" />
     <File Path=".gitignore" />
     <File Path="README.md" />
+    <File Path=".github/workflows/code-quality.yml"/>
+    <File Path=".github/workflows/release.yml"/>
+    <File Path=".github/workflows/commitlint.yml"/>
+    <File Path=".github/workflows/test.yml"/>
   </Folder>
   <Folder Name="/test/">
     <Project Path="test\Clerk.AspNet.Authorization.UnitTests\Clerk.AspNet.Authorization.UnitTests.csproj" />
