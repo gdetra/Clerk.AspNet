@@ -73,7 +73,7 @@ jobs:
         if: success() && steps.version.outputs.version != ''
         run: |
           VERSION="${{ steps.version.outputs.version }}"
-          NUPKG_FILE="nupkg/Clerk.AspNet.Authorization.${VERSION}.nupkg"
+          NUPKG_FILE="bin/Release/Clerk.AspNet.Authorization.${VERSION}.nupkg"
 
           if [ -f "$NUPKG_FILE" ]; then
             echo "Publishing $NUPKG_FILE to NuGet..."
