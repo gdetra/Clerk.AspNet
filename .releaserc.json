@@ -51,7 +51,7 @@
     [
       "@semantic-release/exec",
       {
-        "prepareCmd": "dotnet pack src/Clerk.AspNet.Authorization/Clerk.AspNet.Authorization.csproj --configuration Release --output nupkg -p:Version=${nextRelease.version}"
+        "prepareCmd": "dotnet pack src/Clerk.AspNet.Authorization/Clerk.AspNet.Authorization.csproj --configuration Release --output nupkg -p:Version=${nextRelease.version} -p:AssemblyVersion=${nextRelease.version}.0 -p:FileVersion=${nextRelease.version}.0"
       }
     ],
     [
