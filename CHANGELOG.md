@@ -1,3 +1,10 @@
+## [0.2.1](https://github.com/gdetra/Clerk.AspNet/compare/v0.2.0...v0.2.1) (2025-11-27)
+
+
+### Bug Fixes
+
+* **ci:** version unification ([0257a0d](https://github.com/gdetra/Clerk.AspNet/commit/0257a0d530c158da972fa133c1717c7e4d5dc7af))
+
 ## [0.2.0](https://github.com/gdetra/Clerk.AspNet/compare/v0.1.0...v0.2.0) (2025-11-26)
 
 
