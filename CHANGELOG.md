@@ -1,3 +1,10 @@
+## [0.2.2](https://github.com/gdetra/Clerk.AspNet/compare/v0.2.1...v0.2.2) (2025-11-27)
+
+
+### Bug Fixes
+
+* **ci:** path nupkg ([1c55142](https://github.com/gdetra/Clerk.AspNet/commit/1c55142638c9f8fd93749f7132f8c403808e7466))
+
 ## [0.2.1](https://github.com/gdetra/Clerk.AspNet/compare/v0.2.0...v0.2.1) (2025-11-27)
 
 
