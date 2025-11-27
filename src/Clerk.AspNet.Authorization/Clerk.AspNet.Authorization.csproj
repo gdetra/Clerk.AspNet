@@ -11,6 +11,8 @@
     <PackageId>Clerk.AspNet.Authorization</PackageId>
     <!-- Version is set automatically by semantic-release during build -->
     <Version>0.0.0-dev</Version>
+    <AssemblyVersion>0.0.0.0</AssemblyVersion>
+    <FileVersion>0.0.0.0</FileVersion>
     <Authors>Gabriele De Trane</Authors>
     <Company>Gabriele De Trane</Company>
     <Copyright>Copyright (c) 2025 Gabriele De Trane</Copyright>

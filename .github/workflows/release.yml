@@ -55,12 +55,33 @@ jobs:
           GIT_COMMITTER_EMAIL: github-actions[bot]@users.noreply.github.com
         run: npx semantic-release
 
-      - name: Publish to NuGet
+      - name: Get version from git tag
+        id: version
         if: success()
         run: |
-          if [ -d "nupkg" ]; then
-            dotnet nuget push "nupkg/**/*.nupkg" \
+          VERSION=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          if [ -n "$VERSION" ]; then
+            # Remove 'v' prefix if present
+            VERSION=${VERSION#v}
+            echo "version=$VERSION" >> $GITHUB_OUTPUT
+            echo "Found version: $VERSION"
+          else
+            echo "No version tag found"
+          fi
+
+      - name: Publish to NuGet
+        if: success() && steps.version.outputs.version != ''
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          NUPKG_FILE="nupkg/Clerk.AspNet.Authorization.${VERSION}.nupkg"
+
+          if [ -f "$NUPKG_FILE" ]; then
+            echo "Publishing $NUPKG_FILE to NuGet..."
+            dotnet nuget push "$NUPKG_FILE" \
               --api-key ${{ secrets.NUGET_API_KEY }} \
               --source https://api.nuget.org/v3/index.json \
               --skip-duplicate
+          else
+            echo "Error: Package file not found: $NUPKG_FILE"
+            exit 1
           fi
