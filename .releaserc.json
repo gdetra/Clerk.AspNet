@@ -51,7 +51,7 @@
     [
       "@semantic-release/exec",
       {
-        "prepareCmd": "dotnet pack src/Clerk.AspNet.Authorization/Clerk.AspNet.Authorization.csproj --configuration Release --output nupkg -p:Version=${nextRelease.version} -p:AssemblyVersion=${nextRelease.version}.0 -p:FileVersion=${nextRelease.version}.0"
+        "prepareCmd": "./update-version.sh ${nextRelease.version} && dotnet pack src/Clerk.AspNet.Authorization/Clerk.AspNet.Authorization.csproj --configuration Release --output nupkg"
       }
     ],
     [
@@ -72,7 +72,7 @@
     [
       "@semantic-release/git",
       {
-        "assets": ["CHANGELOG.md"],
+        "assets": ["CHANGELOG.md", "src/Clerk.AspNet.Authorization/Clerk.AspNet.Authorization.csproj"],
         "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
       }
     ]
