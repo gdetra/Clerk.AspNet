@@ -46,6 +46,46 @@ jobs:
       - name: Run tests
         run: dotnet test --no-build --verbosity normal --configuration Release
 
+      - name: Pack NuGet package
+        id: pack
+        run: |
+          # Get current version from csproj or use a test version
+          VERSION=$(grep '<Version>' src/Clerk.AspNet.Authorization/Clerk.AspNet.Authorization.csproj | sed 's/.*<Version>\(.*\)<\/Version>.*/\1/' || echo "0.0.0-local")
+          echo "Building package with version: $VERSION"
+
+          # Create output directory
+          mkdir -p nupkg
+
+          # Pack the project
+          dotnet pack src/Clerk.AspNet.Authorization/Clerk.AspNet.Authorization.csproj \
+            --configuration Release \
+            --output nupkg \
+            --no-build
+
+          # Find and display the created package
+          NUPKG_FILE=$(find nupkg -name "*.nupkg" -type f | head -n 1)
+          if [ -n "$NUPKG_FILE" ]; then
+            # Get absolute path for container
+            ABSOLUTE_PATH=$(realpath "$NUPKG_FILE")
+
+            echo "=========================================="
+            echo "✅ Package created successfully!"
+            echo "=========================================="
+            echo "📦 Container path: $ABSOLUTE_PATH"
+            echo "📁 Relative path:  $NUPKG_FILE"
+            echo "📏 File size:      $(ls -lh "$NUPKG_FILE" | awk '{print $5}')"
+            echo "=========================================="
+            echo ""
+            echo "To copy from container to host, use:"
+            echo "docker cp \$(docker ps -lq):$ABSOLUTE_PATH ."
+            echo "=========================================="
+
+            echo "nupkg_path=$ABSOLUTE_PATH" >> $GITHUB_OUTPUT
+          else
+            echo "❌ Error: No package file was created"
+            exit 1
+          fi
+
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
